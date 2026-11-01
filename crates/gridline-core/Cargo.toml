@@ -1,0 +1,13 @@
+[package]
+name = "gridline-core"
+description = "Datenmodell, Sequencer und Echtzeit-Renderer von Gridline"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rtrb = "0.3"

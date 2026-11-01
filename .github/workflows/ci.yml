@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust:
+    name: Rust-Kern (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - name: ALSA-Header (Linux, für cpal)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev pkg-config
+      - name: Format
+        run: cargo fmt --all --check
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Test
+        run: cargo test --workspace
+      - name: Demo rendern
+        run: cargo run --release -p gridline-core --example render_demo -- demo.wav 4
+
+  linux-app:
+    name: Flutter-App (Linux)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Systempakete
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libasound2-dev
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Analyse
+        working-directory: app
+        run: flutter analyze
+      - name: Build
+        working-directory: app
+        run: flutter build linux --release
+      - name: Paketieren
+        run: tar -czf gridline-linux-x64.tar.gz -C app/build/linux/x64/release bundle
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gridline-linux-x64
+          path: gridline-linux-x64.tar.gz
+          retention-days: 14
+
+  macos-app:
+    name: Flutter-App (macOS)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin, x86_64-apple-darwin
+      - uses: Swatinem/rust-cache@v2
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Build
+        working-directory: app
+        run: flutter build macos --release
+      - name: Paketieren
+        run: ditto -c -k --keepParent app/build/macos/Build/Products/Release/gridline.app gridline-macos.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gridline-macos
+          path: gridline-macos.zip
+          retention-days: 14
+
+  ios-app:
+    name: Flutter-App (iOS, ohne Signatur)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios, aarch64-apple-ios-sim
+      - uses: Swatinem/rust-cache@v2
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Build
+        working-directory: app
+        run: flutter build ios --release --no-codesign
