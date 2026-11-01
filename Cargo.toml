@@ -1,0 +1,14 @@
+[workspace]
+resolver = "2"
+members = ["crates/gridline-core"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+authors = ["Michael Johann"]
+repository = "https://github.com/malagant/gridline"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
