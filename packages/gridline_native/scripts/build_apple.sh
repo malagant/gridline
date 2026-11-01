@@ -5,7 +5,7 @@ set -euo pipefail
 
 PLUGIN_DIR="$(cd "${PODS_TARGET_SRCROOT}/.." && pwd -P)"
 ROOT="$(cd "${PLUGIN_DIR}/../.." && pwd -P)"
-OUT="${PLUGIN_DIR}/build-rust/${PLATFORM_NAME}"
+OUT="${BUILT_PRODUCTS_DIR}"
 export PATH="${HOME}/.cargo/bin:${PATH}"
 
 triples=()

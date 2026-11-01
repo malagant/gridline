@@ -16,13 +16,14 @@ Pod::Spec.new do |s|
     :name => 'Rust-Kern bauen',
     :script => 'bash "${PODS_TARGET_SRCROOT}/../scripts/build_apple.sh"',
     :execution_position => :before_compile,
+    :output_files => ['${BUILT_PRODUCTS_DIR}/libgridline_ffi.a'],
     :always_out_of_date => '1',
   }
 
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
     'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386',
-    'OTHER_LDFLAGS' => '-force_load ${PODS_TARGET_SRCROOT}/../build-rust/${PLATFORM_NAME}/libgridline_ffi.a',
+    'OTHER_LDFLAGS' => '-force_load ${BUILT_PRODUCTS_DIR}/libgridline_ffi.a',
   }
   s.swift_version = '5.0'
 end
