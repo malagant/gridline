@@ -1,0 +1,43 @@
+name: Release
+
+# Ein Tag `v*` baut alles über die CI und legt einen Release-Entwurf mit den
+# Paketen an. Veröffentlicht wird der Entwurf von Hand auf GitHub.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  draft:
+    name: Release-Entwurf
+    needs: ci
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Prüfsummen
+        working-directory: dist
+        run: sha256sum gridline-linux-x64.tar.gz gridline-macos.zip > SHA256SUMS.txt
+      - name: Release-Notes wählen
+        id: notes
+        run: |
+          f=".github/release-notes/${GITHUB_REF_NAME}.md"
+          if [ -f "$f" ]; then echo "path=$f" >> "$GITHUB_OUTPUT"; else echo "path=" >> "$GITHUB_OUTPUT"; fi
+      - uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          name: Gridline ${{ github.ref_name }}
+          body_path: ${{ steps.notes.outputs.path }}
+          generate_release_notes: ${{ steps.notes.outputs.path == '' }}
+          files: |
+            dist/gridline-linux-x64.tar.gz
+            dist/gridline-macos.zip
+            dist/SHA256SUMS.txt
