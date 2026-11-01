@@ -36,6 +36,18 @@ flutter build linux --release
 
 Voraussetzungen: Flutter (stable) und Rust (`rustup`). Linux zusätzlich `clang cmake ninja-build pkg-config libgtk-3-dev libasound2-dev`. Jeder CI-Lauf legt das Linux-Bundle und die macOS-App als Artefakte ab.
 
+## Nix-Entwicklungsumgebung
+
+`flake.nix` stellt eine Dev-Shell mit Rust (stable, inkl. clippy, rustfmt, rust-analyzer), Flutter, den Linux-Systempaketen aus der CI und einem Starship-Prompt bereit:
+
+```bash
+nix develop          # bzw. mit direnv: direnv allow (nutzt .envrc)
+```
+
+Der Prompt kommt aus `starship.toml` und zeigt Verzeichnis, Git-Status, die Rust-Version der Shell, Dart-Version im `app/`-Ordner und Kommandodauer. Unter direnv bleibt die eigene Shell (zsh, fish …); ein dort eingerichtetes Starship liest über `STARSHIP_CONFIG` dieselbe Konfiguration.
+
+Auf macOS kommen Xcode und das SDK vom System, die Shell bringt die Rust-Ziele für macOS und iOS sowie CocoaPods mit. Ist zusätzlich `rustup` installiert, nimmt `packages/gridline_native/scripts/build_apple.sh` dessen `cargo` aus `~/.cargo/bin`.
+
 ## Kern bauen und testen
 
 ```bash

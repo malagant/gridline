@@ -1,0 +1,70 @@
+# Starship-Prompt für die Gridline-Dev-Shell (siehe flake.nix).
+# Wird über STARSHIP_CONFIG geladen, sobald die Shell aus diesem Repo kommt.
+"$schema" = "https://starship.rs/config-schema.json"
+
+add_newline = false
+command_timeout = 1000
+
+format = """
+[▌](bold #f5a524)\
+$directory\
+$git_branch\
+$git_status\
+${custom.rustc}\
+$dart\
+$nix_shell\
+$cmd_duration\
+$line_break\
+$status\
+$character"""
+
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+style = "bold #7dd3fc"
+
+[git_branch]
+symbol = " "
+format = "[$symbol$branch]($style) "
+style = "#a78bfa"
+
+[git_status]
+format = "([$all_status$ahead_behind]($style) )"
+style = "#f87171"
+
+# Eigenes Modul statt [rust]: das eingebaute fragt zuerst rustup und zeigt dann
+# eine andere Version als die Nix-Toolchain, die im PATH vorne steht.
+[custom.rustc]
+command = "rustc --version | cut -d' ' -f2"
+detect_files = ["Cargo.toml"]
+symbol = "rs "
+format = "[$symbol$output]($style) "
+style = "#fb923c"
+shell = ["sh"]
+
+[dart]
+symbol = "dart "
+format = "[$symbol$version]($style) "
+style = "#38bdf8"
+detect_files = ["pubspec.yaml"]
+
+[nix_shell]
+symbol = "nix "
+format = "[$symbol$state]($style) "
+impure_msg = "dev"
+pure_msg = "pure"
+style = "#60a5fa"
+
+[cmd_duration]
+min_time = 2000
+format = "[⏱ $duration]($style) "
+style = "#facc15"
+
+[status]
+disabled = false
+format = "[✘ $status]($style) "
+style = "bold #f87171"
+
+[character]
+success_symbol = "[❯](bold #4ade80)"
+error_symbol = "[❯](bold #f87171)"
