@@ -1,5 +1,6 @@
 import GridlineCore
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct InstrumentPanel: View {
     @EnvironmentObject private var state: AppState
@@ -40,11 +41,18 @@ struct InstrumentPanel: View {
 
 private struct InstrumentEditor: View {
     @EnvironmentObject private var state: AppState
+    @State private var isImporting = false
 
     var body: some View {
         let index = state.selectedInstrument
         VStack(alignment: .leading, spacing: 10) {
-            Button("Sample laden …", action: state.chooseSampleForSelectedInstrument)
+            Button("Sample laden …") { isImporting = true }
+                .fileImporter(isPresented: $isImporting, allowedContentTypes: [.audio]) { result in
+                    switch result {
+                    case .success(let url): state.importSample(from: url)
+                    case .failure(let error): state.statusMessage = error.localizedDescription
+                    }
+                }
             LabeledSlider(title: "Lautstärke", value: $state.song.instruments[index].volume, range: 0...1)
             LabeledSlider(title: "Stimmung", value: $state.song.instruments[index].tune, range: -24...24)
             LabeledSlider(title: "Attack", value: $state.song.instruments[index].attack, range: 0.001...1)

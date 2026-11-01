@@ -1,30 +1,34 @@
-import AppKit
 import Combine
+import Foundation
 import GridlineAudio
 import GridlineCore
-import UniformTypeIdentifiers
+#if os(macOS)
+import AppKit
+#endif
 
 @MainActor
-final class AppState: ObservableObject {
-    @Published var song: Song {
+public final class AppState: ObservableObject {
+    @Published public var song: Song {
         didSet { pushSnapshot() }
     }
-    @Published var cursorTrack = 0
-    @Published var cursorStep = 0
-    @Published var octave = 4
-    @Published var selectedInstrument = 0
-    @Published private(set) var isPlaying = false
-    @Published private(set) var playhead = -1
-    @Published var statusMessage: String?
+    @Published public var cursorTrack = 0
+    @Published public var cursorStep = 0
+    @Published public var octave = 4
+    @Published public var selectedInstrument = 0
+    @Published public private(set) var isPlaying = false
+    @Published public private(set) var playhead = -1
+    @Published public var statusMessage: String?
 
     let patternIndex = 0
 
     private var samples: [SampleData?]
     private var engine: AudioEngine?
     private var playheadTimer: Timer?
+    #if os(macOS)
     private var keyMonitor: Any?
+    #endif
 
-    init() {
+    public init() {
         let song = Song.demo()
         self.song = song
         self.samples = song.instruments.map { Self.makeSample(for: $0.source) }
@@ -40,7 +44,9 @@ final class AppState: ObservableObject {
         playheadTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.pollPlayhead() }
         }
+        #if os(macOS)
         installKeyMonitor()
+        #endif
     }
 
     var currentPattern: GridPattern { song.patterns[patternIndex] }
@@ -73,6 +79,15 @@ final class AppState: ObservableObject {
         cursorStep = ((cursorStep + delta) % length + length) % length
     }
 
+    func shiftOctave(_ delta: Int) {
+        octave = min(max(octave + delta, 0), 8)
+    }
+
+    /// Note relativ zur aktuellen Oktave (0 = C der Oktave).
+    func enterNote(semitone: Int) {
+        enterNote((octave + 1) * 12 + semitone)
+    }
+
     func enterNote(_ midi: Int) {
         let note = min(max(midi, NoteName.playableRange.lowerBound), NoteName.playableRange.upperBound)
         var step = song.patterns[patternIndex][cursorTrack, cursorStep]
@@ -95,17 +110,13 @@ final class AppState: ObservableObject {
 
     // MARK: Instrumente
 
-    func chooseSampleForSelectedInstrument() {
-        let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.audio]
-        panel.allowsMultipleSelection = false
-        panel.message = "Sample für Instrument \(selectedInstrument + 1) wählen"
-        guard panel.runModal() == .OK, let url = panel.url else { return }
+    func importSample(from url: URL) {
         do {
-            let sample = try SampleData.load(url: url)
+            let stored = try SampleLibrary.importFile(url)
+            let sample = try SampleData.load(url: stored)
             let index = selectedInstrument
             samples[index] = sample
-            song.instruments[index].source = .file(path: url.path)
+            song.instruments[index].source = .file(path: stored.path)
             song.instruments[index].name = url.deletingPathExtension().lastPathComponent
             statusMessage = "Geladen: \(url.lastPathComponent)"
         } catch {
@@ -132,6 +143,7 @@ final class AppState: ObservableObject {
         if value != playhead { playhead = value }
     }
 
+    #if os(macOS)
     private func installKeyMonitor() {
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             // Texteingaben (z. B. Felder) nicht abfangen.
@@ -156,8 +168,8 @@ final class AppState: ObservableObject {
 
         switch event.keyCode {
         case 49: togglePlay()                                   // Leertaste
-        case 126: if shift { octave = min(octave + 1, 8) } else { moveCursor(step: -1) }
-        case 125: if shift { octave = max(octave - 1, 0) } else { moveCursor(step: 1) }
+        case 126: if shift { shiftOctave(1) } else { moveCursor(step: -1) }
+        case 125: if shift { shiftOctave(-1) } else { moveCursor(step: 1) }
         case 123: moveCursor(track: -1)
         case 124: moveCursor(track: 1)
         case 116: moveCursor(step: -16)                         // Bild hoch
@@ -166,8 +178,9 @@ final class AppState: ObservableObject {
         case 0: enterNoteOff()                                  // A
         default:
             guard let semitone = Self.pianoKeys[event.keyCode] else { return false }
-            if !event.isARepeat { enterNote((octave + 1) * 12 + semitone) }
+            if !event.isARepeat { enterNote(semitone: semitone) }
         }
         return true
     }
+    #endif
 }

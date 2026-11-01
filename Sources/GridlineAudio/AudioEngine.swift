@@ -1,3 +1,4 @@
+#if canImport(AVFoundation)
 import AVFoundation
 import Foundation
 
@@ -8,6 +9,9 @@ public final class AudioEngine {
     public let renderer: Renderer
 
     public init(snapshot: Renderer.Snapshot) {
+        #if os(iOS)
+        Self.configureAudioSession()
+        #endif
         let engine = AVAudioEngine()
         self.engine = engine
         let hardwareRate = engine.outputNode.outputFormat(forBus: 0).sampleRate
@@ -41,4 +45,15 @@ public final class AudioEngine {
     public func stop() {
         engine.stop()
     }
+
+    #if os(iOS)
+    /// Wiedergabe auch im Stumm-Modus, kurze Puffer für niedrige Latenz.
+    private static func configureAudioSession() {
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
+        try? session.setPreferredIOBufferDuration(0.005)
+        try? session.setActive(true)
+    }
+    #endif
 }
+#endif

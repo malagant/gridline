@@ -29,3 +29,36 @@ jobs:
           name: Gridline-app
           path: build/Gridline.zip
           retention-days: 14
+
+  ios:
+    name: Build iOS/iPadOS (Simulator)
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: XcodeGen installieren
+        run: brew install xcodegen
+      - name: Xcode-Projekt erzeugen
+        run: ./scripts/make-ios-project.sh
+      - name: Build
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project iOS/GridlineiOS.xcodeproj \
+            -scheme GridlineiOS \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO | tail -n 80
+
+  linux:
+    name: Build & Test (Linux)
+    runs-on: ubuntu-24.04
+    container: swift:6.1-noble
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: swift --version
+      - name: Build
+        run: swift build
+      - name: Test
+        run: swift test
