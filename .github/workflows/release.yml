@@ -34,6 +34,9 @@ jobs:
       - name: Prüfsummen
         working-directory: dist
         run: sha256sum gridline-linux-x64.tar.gz gridline-macos.zip > SHA256SUMS.txt
+      - name: Version normalisieren
+        run: |
+          case "$TAG" in v*) ;; *) echo "TAG=v$TAG" >> "$GITHUB_ENV" ;; esac
       - name: Release-Notes wählen
         id: notes
         run: |
