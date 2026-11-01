@@ -1,4 +1,6 @@
+#if canImport(AVFoundation)
 import AVFoundation
+#endif
 import Foundation
 
 /// Unveränderliche, dekodierte Sample-Daten (Float32, nicht interleaved).
@@ -24,8 +26,10 @@ public final class SampleData: @unchecked Sendable {
         case unreadable(URL)
     }
 
-    /// Lädt WAV, AIFF, CAF usw. über AVAudioFile.
+    /// Lädt eine Audiodatei. Auf Apple-Plattformen über AVAudioFile (WAV, AIFF, CAF, MP3 …),
+    /// auf Linux über den eingebauten WAV-Leser.
     public static func load(url: URL) throws -> SampleData {
+        #if canImport(AVFoundation)
         let file = try AVAudioFile(forReading: url, commonFormat: .pcmFormatFloat32, interleaved: false)
         let format = file.processingFormat
         let capacity = AVAudioFrameCount(file.length)
@@ -39,5 +43,8 @@ public final class SampleData: @unchecked Sendable {
         let left = Array(UnsafeBufferPointer(start: channels[0], count: n))
         let right = format.channelCount > 1 ? Array(UnsafeBufferPointer(start: channels[1], count: n)) : left
         return SampleData(left: left, right: right, sampleRate: format.sampleRate)
+        #else
+        return try WavFile.decode(Data(contentsOf: url))
+        #endif
     }
 }
