@@ -2,3 +2,7 @@
 /target/
 *.wav
 !crates/**/testdata/*.wav
+
+# Nix / direnv
+/result
+/.direnv/
