@@ -1,0 +1,16 @@
+[package]
+name = "gridline-ffi"
+description = "C-Schnittstelle und Audio-Ausgabe von Gridline für die Flutter-App"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[lib]
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[dependencies]
+gridline-core = { path = "../gridline-core" }
+cpal = "0.18"
+serde_json = "1"
