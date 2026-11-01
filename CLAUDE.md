@@ -7,3 +7,4 @@
 - Echtzeit-Regel: Alles, was von `Renderer.render` aus erreichbar ist, darf nicht blockieren und sollte nicht allokieren. Kein `lock()`, nur `tryLock()`; kein Print, kein Foundation-I/O.
 - Lokale Sessions laufen oft auf Linux ohne Swift. Build und Tests laufen dann über die GitHub-Actions-CI (`macos-15`).
 - `Pattern` kollidiert mit QuickDraw aus AppKit, daher heißt der Typ `GridPattern`.
+- `GridlineCore` und `GridlineAudio` müssen auch auf Linux bauen (CI-Job `linux`). AVFoundation nur hinter `#if canImport(AVFoundation)`; Apple-UI-Targets sind in `Package.swift` unter `#if !os(Linux)`.

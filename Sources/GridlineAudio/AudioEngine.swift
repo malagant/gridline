@@ -1,3 +1,4 @@
+#if canImport(AVFoundation)
 import AVFoundation
 import Foundation
 
@@ -55,3 +56,4 @@ public final class AudioEngine {
     }
     #endif
 }
+#endif
