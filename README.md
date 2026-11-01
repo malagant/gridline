@@ -1,6 +1,6 @@
 # Gridline
 
-Gridline ist ein Pattern-Sequencer im Tracker-Stil für macOS: Spuren laufen senkrecht, jede Zeile ist ein Step, gespielt werden Sample-Instrumente. Die Arbeitsweise ist von Hardware-Trackern inspiriert. Gridline ist ein eigenständiges Projekt mit eigenem Design und eigenen Klängen und steht in keiner Verbindung zu Herstellern solcher Geräte.
+Gridline ist ein Pattern-Sequencer im Tracker-Stil für macOS, iPhone und iPad: Spuren laufen senkrecht, jede Zeile ist ein Step, gespielt werden Sample-Instrumente. Die Arbeitsweise ist von Hardware-Trackern inspiriert. Gridline ist ein eigenständiges Projekt mit eigenem Design und eigenen Klängen und steht in keiner Verbindung zu Herstellern solcher Geräte.
 
 ## Stand (0.1)
 
@@ -8,7 +8,8 @@ Gridline ist ein Pattern-Sequencer im Tracker-Stil für macOS: Spuren laufen sen
 - Sample-genaue Step-Uhr im Audio-Thread (AVAudioEngine, eigener Render-Callback)
 - 16 Instrument-Slots, 5 eingebaute, synthetisch erzeugte Klänge, eigene Samples (WAV/AIFF/CAF) ladbar
 - Pro Instrument Lautstärke, Stimmung, Attack, Release, Loop
-- Komplette Tastaturbedienung, Belegung nach physischer Tastenposition (QWERTZ und QWERTY)
+- macOS: komplette Tastaturbedienung, Belegung nach physischer Tastenposition (QWERTZ und QWERTY)
+- iPhone und iPad: Bildschirm-Klaviatur, Cursor-Tasten, Step per Antippen wählen. Auf dem iPad liegen die Instrumente neben dem Grid, auf dem iPhone in einem Sheet
 
 ## Tastatur
 
@@ -33,6 +34,18 @@ swift test                    # Tests
 ./scripts/make-app.sh         # build/Gridline.app und build/Gridline.zip
 ```
 
+### iPhone und iPad
+
+```bash
+brew install xcodegen
+./scripts/make-ios-project.sh   # erzeugt iOS/GridlineiOS.xcodeproj
+open iOS/GridlineiOS.xcodeproj
+```
+
+In Xcode unter *Signing & Capabilities* das eigene Team wählen, Gerät oder Simulator auswählen und starten. Importierte Samples werden in den App-Container kopiert.
+
+### CI
+
 Jeder CI-Lauf legt außerdem `Gridline.zip` als Artefakt ab. Die App ist nur ad-hoc signiert. Beim ersten Start daher per Rechtsklick → Öffnen starten oder `xattr -dr com.apple.quarantine Gridline.app` ausführen.
 
 ## Aufbau
@@ -41,7 +54,9 @@ Jeder CI-Lauf legt außerdem `Gridline.zip` als Artefakt ab. Die App ist nur ad-
 | --- | --- |
 | `GridlineCore` | Datenmodell (Song, Pattern, Step, Instrument), Step-Uhr, Projektformat. Nur Foundation. |
 | `GridlineAudio` | Sample-Daten, eingebaute Klänge, Stimmen, Echtzeit-Renderer, AVAudioEngine-Anbindung |
-| `Gridline` | SwiftUI-App |
+| `GridlineUI` | Gemeinsame SwiftUI-Oberfläche und App-Zustand für alle Plattformen |
+| `Gridline` | macOS-App (Einstieg, Fenster) |
+| `iOS/` | iPhone- und iPad-App als XcodeGen-Projekt, nutzt `GridlineUI` |
 
 ## Roadmap
 
@@ -51,6 +66,7 @@ Jeder CI-Lauf legt außerdem `Gridline.zip` als Artefakt ab. Die App ist nur ad-
 4. WAV-Export
 5. Master-Effekte (Delay, Reverb), Sample-Editor mit Start/Ende/Slices
 6. MIDI-In und -Out, Performance-Modus
+7. Hardware-Tastatur auf dem iPad, AUv3-Plugin
 
 ## Lizenz
 

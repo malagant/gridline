@@ -4,3 +4,5 @@ build/
 .swiftpm/
 *.xcodeproj/xcuserdata/
 DerivedData/
+iOS/GridlineiOS.xcodeproj/
+iOS/App/Info.plist

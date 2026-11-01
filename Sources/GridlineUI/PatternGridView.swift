@@ -4,9 +4,15 @@ import SwiftUI
 struct PatternGridView: View {
     @EnvironmentObject private var state: AppState
 
-    private let rowNumberWidth: CGFloat = 44
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var cellWidth: CGFloat { sizeClass == .compact ? 136 : 150 }
+    private let rowHeight: CGFloat = 26   // größere Touch-Ziele
+    #else
     private let cellWidth: CGFloat = 150
     private let rowHeight: CGFloat = 20
+    #endif
+    private let rowNumberWidth: CGFloat = 44
 
     var body: some View {
         let pattern = state.currentPattern
