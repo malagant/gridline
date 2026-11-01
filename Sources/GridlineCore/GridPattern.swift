@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Pattern: Hashable, Codable, Sendable {
+public struct GridPattern: Hashable, Codable, Sendable {
     public static let maxLength = 128
 
     /// Aktive Länge in Steps (1...128). Daten jenseits der Länge bleiben erhalten.

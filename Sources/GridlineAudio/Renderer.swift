@@ -146,7 +146,7 @@ public final class Renderer: @unchecked Sendable {
         }
     }
 
-    private func trigger(step index: Int, in pattern: Pattern) {
+    private func trigger(step index: Int, in pattern: GridPattern) {
         for track in 0..<min(voices.count, pattern.trackCount) {
             let step = pattern[track, index]
             switch step.note {

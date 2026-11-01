@@ -39,7 +39,7 @@ struct TransportBar: View {
 
             Stepper(value: Binding(get: { state.currentPattern.length },
                                    set: { state.setPatternLength($0) }),
-                    in: 1...Pattern.maxLength) {
+                    in: 1...GridPattern.maxLength) {
                 Text("Länge \(state.currentPattern.length)").font(Theme.monoBold)
             }
 

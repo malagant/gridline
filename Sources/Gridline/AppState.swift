@@ -43,7 +43,7 @@ final class AppState: ObservableObject {
         installKeyMonitor()
     }
 
-    var currentPattern: Pattern { song.patterns[patternIndex] }
+    var currentPattern: GridPattern { song.patterns[patternIndex] }
 
     // MARK: Transport
 

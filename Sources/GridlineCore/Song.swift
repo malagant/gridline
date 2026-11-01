@@ -8,15 +8,15 @@ public struct Song: Hashable, Codable, Sendable {
     public var bpm: Double {
         didSet { bpm = min(max(bpm, Self.bpmRange.lowerBound), Self.bpmRange.upperBound) }
     }
-    public var patterns: [Pattern]
+    public var patterns: [GridPattern]
     public var instruments: [Instrument]
 
     public init(name: String = "Neuer Song", bpm: Double = 120,
-                patterns: [Pattern] = [Pattern()],
+                patterns: [GridPattern] = [GridPattern()],
                 instruments: [Instrument] = (0..<Instrument.slotCount).map { _ in .emptySlot() }) {
         self.name = name
         self.bpm = min(max(bpm, Self.bpmRange.lowerBound), Self.bpmRange.upperBound)
-        self.patterns = patterns.isEmpty ? [Pattern()] : patterns
+        self.patterns = patterns.isEmpty ? [GridPattern()] : patterns
         self.instruments = instruments
     }
 
@@ -31,7 +31,7 @@ public struct Song: Hashable, Codable, Sendable {
         ]
         while instruments.count < Instrument.slotCount { instruments.append(.emptySlot()) }
 
-        var p = Pattern(length: 16)
+        var p = GridPattern(length: 16)
         for s in stride(from: 0, to: 16, by: 4) { p[0, s] = Step(note: .note(60), instrument: 0) }
         for s in [4, 12] { p[1, s] = Step(note: .note(60), instrument: 1) }
         for s in stride(from: 2, to: 16, by: 4) { p[2, s] = Step(note: .note(60), instrument: 2, volume: 60) }

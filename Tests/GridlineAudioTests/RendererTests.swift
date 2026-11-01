@@ -63,7 +63,7 @@ final class RendererTests: XCTestCase {
 
     func testEmptyInstrumentIsIgnored() {
         var song = Song.demo()
-        song.patterns[0] = Pattern()
+        song.patterns[0] = GridPattern()
         song.patterns[0][0, 0] = Step(note: .note(60), instrument: 10)
         let renderer = makeRenderer(song: song)
         renderer.send(.play(fromStep: 0))

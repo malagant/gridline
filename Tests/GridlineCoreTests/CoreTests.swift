@@ -43,10 +43,10 @@ final class StepTests: XCTestCase {
 
 final class PatternTests: XCTestCase {
     func testLengthIsClampedAndDataSurvives() {
-        var p = Pattern(length: 16)
+        var p = GridPattern(length: 16)
         p[0, 20] = Step(note: .note(60))
         p.setLength(500)
-        XCTAssertEqual(p.length, Pattern.maxLength)
+        XCTAssertEqual(p.length, GridPattern.maxLength)
         p.setLength(0)
         XCTAssertEqual(p.length, 1)
         p.setLength(32)
@@ -54,7 +54,7 @@ final class PatternTests: XCTestCase {
     }
 
     func testOutOfRangeAccessIsSafe() {
-        var p = Pattern()
+        var p = GridPattern()
         p[99, 0] = Step(note: .note(60))
         XCTAssertEqual(p[99, 0], .empty)
         XCTAssertEqual(p[0, 999], .empty)

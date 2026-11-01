@@ -20,7 +20,7 @@ public struct StepEffect: Hashable, Codable, Sendable {
     }
 }
 
-/// Eine Zelle im Pattern: Note, Instrument, Lautstärke und zwei Effektspalten.
+/// Eine Zelle im GridPattern: Note, Instrument, Lautstärke und zwei Effektspalten.
 public struct Step: Hashable, Codable, Sendable {
     public var note: StepNote
     /// Index in `Song.instruments` (0-basiert). `nil` = letztes Instrument der Spur.
@@ -46,7 +46,7 @@ public struct Step: Hashable, Codable, Sendable {
     public static let empty = Step()
 }
 
-/// Textdarstellung der Spalten für das Pattern-Grid.
+/// Textdarstellung der Spalten für das GridPattern-Grid.
 public enum StepFormatter {
     public static func note(_ step: Step) -> String {
         switch step.note {

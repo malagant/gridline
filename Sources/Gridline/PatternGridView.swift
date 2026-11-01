@@ -45,7 +45,7 @@ struct PatternGridView: View {
         .background(Theme.panel)
     }
 
-    private func row(_ stepIndex: Int, pattern: Pattern) -> some View {
+    private func row(_ stepIndex: Int, pattern: GridPattern) -> some View {
         HStack(spacing: 0) {
             Text(String(format: "%03d", stepIndex))
                 .font(Theme.mono)
